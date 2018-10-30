@@ -1,0 +1,32 @@
+services:
+  enis_sylius_dotpay_plugin.action.capture:
+    class: Enis\SyliusDotpayPlugin\Action\CaptureAction
+    public: true
+    arguments:
+      - "@enis_sylius_dotpay_plugin.bridge.dotpay"
+    tags:
+      - { name: payum.action, factory: dotpay, alias: payum.action.capture }
+
+  enis_sylius_dotpay_plugin.action.convert_payment:
+    class: Enis\SyliusDotpayPlugin\Action\ConvertPaymentAction
+    public: true
+    arguments:
+      - "@sylius.payment_description_provider"
+    tags:
+      - { name: payum.action, factory: dotpay, alias: payum.action.convert_payment }
+
+  enis_sylius_dotpay_plugin.action.notify:
+    class: Enis\SyliusDotpayPlugin\Action\NotifyAction
+    public: true
+    arguments:
+    - "@enis_sylius_dotpay_plugin.bridge.dotpay"
+    tags:
+    - { name: payum.action, factory: dotpay, alias: payum.action.notify }
+
+  enis_sylius_dotpay_plugin.action.status:
+    class: Enis\SyliusDotpayPlugin\Action\StatusAction
+    public: true
+    arguments:
+    - "@enis_sylius_dotpay_plugin.bridge.dotpay"
+    tags:
+    - { name: payum.action, factory: dotpay, alias: payum.action.status }

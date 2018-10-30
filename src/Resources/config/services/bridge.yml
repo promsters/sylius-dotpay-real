@@ -1,0 +1,5 @@
+services:
+  enis_sylius_dotpay_plugin.bridge.dotpay:
+    class: Enis\SyliusDotpayPlugin\Bridge\DotpayBridge
+    arguments:
+      - "@sylius.http_client"

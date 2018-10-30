@@ -1,0 +1,8 @@
+enis_sylius_dotpay_plugin:
+  ui:
+    production: Produkcja
+    sandbox: Sandbox
+    shop_id: ID Sprzedawcy
+    secret_key: Klucz prywatny
+    environment: Środowisko
+    dotpay_gateway_label: Dotpay
