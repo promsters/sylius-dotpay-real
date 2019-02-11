@@ -16,4 +16,13 @@ composer require enis-promsters/plugin-dotpay
 ``````
 Enis\SyliusDotpayPlugin\SyliusDotpayPlugin::class => ['all' => true],
 ``````
-3. Configure new payment method in admin panel
+3. Configure env variables
+````
+DOTPAY_SANDBOX_HOST=
+DOTPAY_PRODUCTION_HOST=
+DOTPAY_SHOP_ID=
+DOTPAY_SECRET_KEY=
+DOTPAY_API_VERSION=
+DOTPAY_BUTTON_TYPE=
+````
+Both api version and button type
