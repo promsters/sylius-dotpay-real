@@ -1,49 +1,20 @@
-<?php
-/**
- * Created by PhpStorm.
- * User: tomasz.ptak
- * Date: 30.10.2018
- * Time: 11:02
- */
+<?php declare(strict_types=1);
 
-namespace Enis\SyliusDotpayPlugin\Action;
+namespace SyliusDotpayPlugin\Action;
 
 use Payum\Core\Action\ActionInterface;
-use Payum\Core\ApiAwareInterface;
 use Payum\Core\GatewayAwareInterface;
 use Payum\Core\GatewayAwareTrait;
-use Enis\SyliusDotpayPlugin\Bridge\DotpayBridgeInterface;
-use Payum\Core\Exception\UnsupportedApiException;
+use Enis\Component\Payment\Bridge\DotpayBridgeInterface;
 use Payum\Core\Exception\RequestNotSupportedException;
 use Payum\Core\Request\GetStatusInterface;
 use Sylius\Component\Core\Model\PaymentInterface;
 use Payum\Core\Request\GetHttpRequest;
 
-final class StatusAction implements ActionInterface, ApiAwareInterface, GatewayAwareInterface
+final class StatusAction implements ActionInterface, GatewayAwareInterface
 {
     use GatewayAwareTrait;
-    /**
-     * @var DotpayBridgeInterface
-     */
-    private $dotpayBridge;
 
-    /**
-     * @param DotpayBridgeInterface $przelewy24Bridge
-     */
-    public function __construct(DotpayBridgeInterface $dotpayBridge)
-    {
-        $this->dotpayBridge = $dotpayBridge;
-    }
-    /**
-     * {@inheritDoc}
-     */
-    public function setApi($api): void
-    {
-        if (false === is_array($api)) {
-            throw new UnsupportedApiException('Not supported.Expected to be set as array.');
-        }
-        $this->dotpayBridge->setAuthorizationData($api['shop_id'], $api['secret_key'], $api['environment']);
-    }
     /**
      * {@inheritDoc}
      *
@@ -51,14 +22,16 @@ final class StatusAction implements ActionInterface, ApiAwareInterface, GatewayA
      */
     public function execute($request): void
     {
+        /** @var GetStatusInterface $request */
         RequestNotSupportedException::assertSupports($this, $request);
+
         /** @var PaymentInterface $payment */
         $payment = $request->getModel();
         $details = $payment->getDetails();
         $this->gateway->execute($httpRequest = new GetHttpRequest());
 
 
-        if (false === isset($details['dotpay_status'])) {
+        if (!isset($details['dotpay_status'])) {
             $request->markNew();
             return;
         }
@@ -87,7 +60,6 @@ final class StatusAction implements ActionInterface, ApiAwareInterface, GatewayA
     {
         return
             $request instanceof GetStatusInterface &&
-            $request->getModel() instanceof PaymentInterface
-            ;
+            $request->getModel() instanceof PaymentInterface;
     }
 }

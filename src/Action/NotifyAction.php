@@ -1,19 +1,13 @@
-<?php
-/**
- * Created by PhpStorm.
- * User: tomasz.ptak
- * Date: 30.10.2018
- * Time: 11:12
- */
+<?php declare(strict_types=1);
 
-namespace Enis\SyliusDotpayPlugin\Action;
+namespace SyliusDotpayPlugin\Action;
 
+use SyliusDotpayPlugin\Bridge\DotpayBridge;
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\ApiAwareInterface;
+use Payum\Core\ApiAwareTrait;
 use Payum\Core\GatewayAwareInterface;
 use Payum\Core\GatewayAwareTrait;
-use Enis\SyliusDotpayPlugin\Bridge\DotpayBridgeInterface;
-use Payum\Core\Exception\UnsupportedApiException;
 use Payum\Core\Exception\RequestNotSupportedException;
 use Payum\Core\Reply\HttpResponse;
 use Payum\Core\Request\Notify;
@@ -22,31 +16,18 @@ use Payum\Core\Request\GetHttpRequest;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Payum\Core\Exception\InvalidArgumentException;
 
-final class NotifyAction implements ActionInterface, ApiAwareInterface, GatewayAwareInterface
+final class NotifyAction implements ActionInterface, GatewayAwareInterface
 {
     use GatewayAwareTrait;
-    /**
-     * @var DotpayBridgeInterface
-     */
-    private $dotpayBridge;
 
     /**
-     * @param DotpayBridgeInterface $przelewy24Bridge
+     * @var DotpayBridge
      */
-    public function __construct(DotpayBridgeInterface $dotpayBridge)
-    {
-        $this->dotpayBridge = $dotpayBridge;
-    }
+    protected $bridge;
 
-    /**
-     * {@inheritDoc}
-     */
-    public function setApi($api): void
+    public function __construct(DotpayBridge $bridge)
     {
-        if (false === is_array($api)) {
-            throw new UnsupportedApiException('Not supported.Expected to be set as array.');
-        }
-        $this->dotpayBridge->setAuthorizationData($api['shop_id'], $api['secret_key'], $api['environment']);
+        $this->bridge = $bridge;
     }
 
     /**
@@ -56,7 +37,9 @@ final class NotifyAction implements ActionInterface, ApiAwareInterface, GatewayA
      */
     public function execute($request): void
     {
+        /** @var Notify $request */
         RequestNotSupportedException::assertSupports($this, $request);
+
         $details = ArrayObject::ensureArrayObject($request->getModel());
         $this->gateway->execute($httpRequest = new GetHttpRequest());
 
@@ -92,7 +75,7 @@ final class NotifyAction implements ActionInterface, ApiAwareInterface, GatewayA
      */
     private function verifyChecksum(GetHttpRequest $request): bool
     {
-        $sign = $this->dotpayBridge->generateResponseChecksum($request->request);
+        $sign = $this->bridge->generateResponseChecksum($request->request);
 
         return $sign === $request->request['signature'];
     }

@@ -21,7 +21,7 @@
     "prefer-stable": true,
     "autoload": {
         "psr-4": {
-            "Enis\\SyliusDotpayPlugin\\": "src/"
+            "SyliusDotpayPlugin\\": "src/"
         }
     }
 }

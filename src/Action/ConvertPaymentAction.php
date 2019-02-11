@@ -1,13 +1,6 @@
-<?php
-/**
- * Created by PhpStorm.
- * User: tomasz.ptak
- * Date: 30.10.2018
- * Time: 10:05
- */
+<?php declare(strict_types=1);
 
-namespace Enis\SyliusDotpayPlugin\Action;
-
+namespace SyliusDotpayPlugin\Action;
 
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\GatewayAwareTrait;
@@ -17,7 +10,6 @@ use Sylius\Bundle\PayumBundle\Provider\PaymentDescriptionProviderInterface;
 use Payum\Core\Exception\RequestNotSupportedException;
 use Sylius\Component\Core\Model\OrderInterface;
 
-
 final class ConvertPaymentAction implements ActionInterface
 {
     use GatewayAwareTrait;
@@ -26,6 +18,7 @@ final class ConvertPaymentAction implements ActionInterface
      * @var PaymentDescriptionProviderInterface
      */
     private $paymentDescriptionProvider;
+
     /**
      * @param PaymentDescriptionProviderInterface $paymentDescriptionProvider
      */
@@ -41,6 +34,7 @@ final class ConvertPaymentAction implements ActionInterface
      */
     public function execute($request): void
     {
+        /** @var Convert $request */
         RequestNotSupportedException::assertSupports($this, $request);
 
         /** @var PaymentInterface $payment */
@@ -64,19 +58,23 @@ final class ConvertPaymentAction implements ActionInterface
         return
             $request instanceof Convert &&
             $request->getSource() instanceof PaymentInterface &&
-            $request->getTo() === 'array'
-            ;
+            $request->getTo() === 'array';
     }
 
     private function getPaymentData(PaymentInterface $payment) : array
     {
         $paymentData = [];
 
-        $paymentData['amount'] = bcdiv((string) $payment->getAmount(), '100', 2); // dotpay price format
+        $paymentData['amount'] = $this->getParsedPrice($payment->getAmount());
         $paymentData['currency'] = $payment->getCurrencyCode();
         $paymentData['description'] = $this->paymentDescriptionProvider->getPaymentDescription($payment);
 
         return $paymentData;
+    }
+
+    private function getParsedPrice(?int $price) : string
+    {
+        return bcdiv((string) $price, '100', 2);
     }
 
     private function getCustomerData(OrderInterface $order) : array

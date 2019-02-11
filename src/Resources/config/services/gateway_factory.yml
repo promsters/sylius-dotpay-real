@@ -1,7 +1,7 @@
 services:
-  enis_sylius_dotpay_plugin.gateway_factory.dotpay:
+  sylius_dotpay_plugin.gateway_factory.dotpay:
     class: Payum\Core\Bridge\Symfony\Builder\GatewayFactoryBuilder
     arguments:
-      -  Enis\SyliusDotpayPlugin\DotpayGatewayFactory
+      -  SyliusDotpayPlugin\DotpayGatewayFactory
     tags:
       - { name: payum.gateway_factory_builder, factory: dotpay }

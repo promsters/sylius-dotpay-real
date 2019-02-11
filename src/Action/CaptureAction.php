@@ -1,67 +1,32 @@
-<?php
-/**
- * Created by PhpStorm.
- * User: tomasz.ptak
- * Date: 30.10.2018
- * Time: 10:26
- */
+<?php declare(strict_types=1);
 
-namespace Enis\SyliusDotpayPlugin\Action;
+namespace SyliusDotpayPlugin\Action;
 
-
+use SyliusDotpayPlugin\Bridge\DotpayBridge;
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\ApiAwareInterface;
+use Payum\Core\ApiAwareTrait;
 use Payum\Core\GatewayAwareInterface;
 use Payum\Core\GatewayAwareTrait;
 use Payum\Core\Security\GenericTokenFactoryAwareInterface;
-use Payum\Core\Security\GenericTokenFactoryInterface;
-use Enis\SyliusDotpayPlugin\Bridge\DotpayBridgeInterface;
-use Payum\Core\Exception\UnsupportedApiException;
+use Payum\Core\Security\GenericTokenFactoryAwareTrait;
 use Payum\Core\Request\Capture;
 use Payum\Core\Exception\RequestNotSupportedException;
 use Payum\Core\Security\TokenInterface;
 use Payum\Core\Reply\HttpPostRedirect;
 
-final class CaptureAction implements ActionInterface, ApiAwareInterface, GenericTokenFactoryAwareInterface, GatewayAwareInterface
+final class CaptureAction implements ActionInterface, GenericTokenFactoryAwareInterface, GatewayAwareInterface
 {
-    use GatewayAwareTrait;
+    use GatewayAwareTrait, GenericTokenFactoryAwareTrait;
 
     /**
-     * @var GenericTokenFactoryInterface
+     * @var DotpayBridge
      */
-    protected $tokenFactory;
-    /**
-     * @var DotpayBridgeInterface
-     */
-    private $dotpayBridge;
+    protected $bridge;
 
-    /**
-     * @param DotpayBridgeInterface $przelewy24Bridge
-     */
-    public function __construct(DotpayBridgeInterface $dotpayBridge)
+    public function __construct(DotpayBridge $bridge)
     {
-        $this->dotpayBridge = $dotpayBridge;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setApi($api): void
-    {
-        if (false === is_array($api)) {
-            throw new UnsupportedApiException('Not supported.Expected to be set as array.');
-        }
-        $this->dotpayBridge->setAuthorizationData($api['shop_id'], $api['secret_key'], $api['environment']);
-    }
-
-    /**
-     * @param GenericTokenFactoryInterface $genericTokenFactory
-     *
-     * @return void
-     */
-    public function setGenericTokenFactory(GenericTokenFactoryInterface $genericTokenFactory = null): void
-    {
-        $this->tokenFactory = $genericTokenFactory;
+        $this->bridge = $bridge;
     }
 
     /**
@@ -71,7 +36,9 @@ final class CaptureAction implements ActionInterface, ApiAwareInterface, Generic
      */
     public function execute($request): void
     {
+        /** @var Capture $request */
         RequestNotSupportedException::assertSupports($this, $request);
+
         $details = $request->getModel();
         if (isset($details['dotpay_status'])) {
             return;
@@ -83,17 +50,18 @@ final class CaptureAction implements ActionInterface, ApiAwareInterface, Generic
         $details['control'] = uniqid();
 
         $data = (array) $details;
-        $data['api_version'] = 'dev';
-        $data['type'] = DotpayBridgeInterface::BUTTON_TYPE_VISIBLE;
-        $data['id'] = $this->dotpayBridge->getShopId();
+
+        $data['api_version'] = $this->bridge->api_version;
+        $data['type'] = $this->bridge->button_type;
+        $data['id'] = $this->bridge->getShopId();
 
         $notifyToken = $this->tokenFactory->createNotifyToken($token->getGatewayName(), $token->getDetails());
         $data['url'] = $token->getTargetUrl();
-        $data['urlc'] = str_replace('localhost', '405b87a5.ngrok.io', $notifyToken->getTargetUrl());
+        $data['urlc'] = $notifyToken->getTargetUrl();
 
-        $data['chk'] = $this->dotpayBridge->generateChecksum($data);
+        $data['chk'] = $this->bridge->generateChecksum($data);
 
-        throw new HttpPostRedirect($this->dotpayBridge->getRequestUrl(), $data);
+        throw new HttpPostRedirect($this->bridge->getRequestUrl(), $data);
     }
     /**
      * {@inheritDoc}
@@ -102,7 +70,6 @@ final class CaptureAction implements ActionInterface, ApiAwareInterface, Generic
     {
         return
             $request instanceof Capture &&
-            $request->getModel() instanceof \ArrayAccess
-            ;
+            $request->getModel() instanceof \ArrayAccess;
     }
 }

@@ -1,6 +1,6 @@
 services:
-  enis_sylius_dotpay_plugin.form.type.dotpay_gateway_configuration:
-    class: Enis\SyliusDotpayPlugin\Form\Type\DotpayGatewayConfigurationType
+  sylius_dotpay_plugin.form.type.dotpay_gateway_configuration:
+    class: SyliusDotpayPlugin\Form\Type\DotpayGatewayConfigurationType
     tags:
-      - { name: sylius.gateway_configuration_type, type: dotpay, label: enis_sylius_dotpay_plugin.ui.dotpay_gateway_label }
+      - { name: sylius.gateway_configuration_type, type: dotpay, label: sylius_dotpay_plugin.ui.dotpay.dotpay_gateway_label }
       - { name: form.type }

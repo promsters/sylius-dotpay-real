@@ -1,0 +1,4 @@
+sylius_dotpay_plugin:
+  ui:
+    dotpay:
+      dotpay_gateway_label: Dotpay

@@ -1,5 +1,11 @@
 services:
-  enis_sylius_dotpay_plugin.bridge.dotpay:
-    class: Enis\SyliusDotpayPlugin\Bridge\DotpayBridge
+  sylius_dotpay_plugin.bridge.dotpay:
+    class: SyliusDotpayPlugin\Bridge\DotpayBridge
     arguments:
-      - "@sylius.http_client"
+      - '%kernel.environment%'
+      - '%env(DOTPAY_SANDBOX_HOST)%'
+      - '%env(DOTPAY_PRODUCTION_HOST)%'
+      - '%env(DOTPAY_SHOP_ID)%'
+      - '%env(DOTPAY_SECRET_KEY)%'
+      - '%env(DOTPAY_API_VERSION)%'
+      - '%env(DOTPAY_BUTTON_TYPE)%'

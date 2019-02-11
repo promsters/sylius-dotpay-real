@@ -1,6 +1,6 @@
 <?php
 
-namespace Enis\SyliusDotpayPlugin\DependencyInjection;
+namespace SyliusDotpayPlugin\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
