@@ -14,7 +14,7 @@ composer require enis-promsters/plugin-dotpay
 ``````
 2. Add to bundles.php
 ``````
-Enis\SyliusDotpayPlugin\SyliusDotpayPlugin::class => ['all' => true],
+SyliusDotpayPlugin\SyliusDotpayPlugin::class => ['all' => true],
 ``````
 3. Configure env variables
 ````
@@ -25,4 +25,5 @@ DOTPAY_SECRET_KEY=
 DOTPAY_API_VERSION=
 DOTPAY_BUTTON_TYPE=
 ````
-Both api version and button type
+More information on both api version and button type can be found here:
+http://www.dotpay.pl/dla-developerow/
